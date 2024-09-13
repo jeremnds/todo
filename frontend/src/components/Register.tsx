@@ -48,11 +48,10 @@ export default function Register() {
     resolver: zodResolver(registerSchema),
   });
 
-  const url = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<registerData> = async (data) => {
     try {
-      const response = await fetch(`${url}/api/users/register`, {
+      const response = await fetch(`/api/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -5,13 +5,12 @@ import Container from "./Container";
 export default function Header() {
   const { user, loading, setUser } = useUser();
   const navigate = useNavigate();
-  const url = import.meta.env.VITE_BACKEND_URL;
 
   if (loading) return;
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${url}/api/users/logout`, {
+      const response = await fetch(`/api/users/logout`, {
         method: "POST",
         credentials: "include",
       });

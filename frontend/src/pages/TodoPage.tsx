@@ -7,14 +7,13 @@ import { TodosType } from "../types/todo.type";
 
 export default function TodoPage() {
   const [todos, setTodos] = useState<TodosType | []>([]);
-  const url = import.meta.env.VITE_BACKEND_URL;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${url}/api/todos`, {
+        const response = await fetch(`/api/todos`, {
           method: "GET",
           credentials: "include",
         });
@@ -28,7 +27,7 @@ export default function TodoPage() {
       }
     };
     fetchTodos();
-  }, [url, navigate]);
+  }, [navigate]);
 
   const submitHandler = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -44,7 +43,7 @@ export default function TodoPage() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${url}/api/todos/create`, {
+      const response = await fetch(`/api/todos/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +69,7 @@ export default function TodoPage() {
 
   const deleteHandler = async (id: string) => {
     try {
-      const response = await fetch(`${url}/api/todos/delete/${id}`, {
+      const response = await fetch(`/api/todos/delete/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +90,7 @@ export default function TodoPage() {
 
   const completeHandler = async (id: string, currentCompleted: boolean) => {
     try {
-      const response = await fetch(`${url}/api/todos/edit/${id}`, {
+      const response = await fetch(`/api/todos/edit/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
