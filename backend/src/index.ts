@@ -45,7 +45,7 @@ app.use(
       secure: nodeEnv === "production",
       sameSite: "lax",
     },
-    store: MongoStore.create({ client: mongoose.connection.getClient() }),
+    store: MongoStore.create({ mongoUrl: mongoUri }),
   })
 );
 
