@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Hello world!" });
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 if (!PORT) throw new Error("PORT is missing");
 
