@@ -43,7 +43,7 @@ app.use(
       maxAge: 60000 * 60 * 2,
       httpOnly: true,
       secure: nodeEnv === "production",
-      sameSite: "none",
+      sameSite: nodeEnv === "production" ? "none" : "lax",
     },
     store: MongoStore.create({ mongoUrl: mongoUri }),
   })
