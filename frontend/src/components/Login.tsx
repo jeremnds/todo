@@ -40,7 +40,6 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const url = import.meta.env.VITE_BACKEND_URL;
 
   const searchParams = new URLSearchParams(location.search);
   const success = searchParams.get("success");
@@ -50,7 +49,7 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     try {
-      const response = await fetch(`${url}/api/users/login`, {
+      const response = await fetch("/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
