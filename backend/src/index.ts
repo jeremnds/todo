@@ -23,12 +23,15 @@ mongoose
   .catch((err) => console.log(`Error: ${err}`));
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: frontUrl,
-    credentials: true,
-  })
-);
+
+const corsOptions = {
+  origin: frontUrl,
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -42,8 +45,11 @@ app.use(
     cookie: {
       maxAge: 60000 * 60 * 2,
       httpOnly: true,
-      secure: nodeEnv === "production",
-      sameSite: nodeEnv === "production" ? "none" : "lax",
+      // secure: nodeEnv === "production",
+      // sameSite: nodeEnv === "production" ? "none" : "lax",
+
+      secure: true,
+      sameSite: "none",
     },
     store: MongoStore.create({ mongoUrl: mongoUri }),
   })
