@@ -8,27 +8,19 @@
 //   }
 // }
 
-import { Request } from "express";
 import { ObjectId } from "mongoose";
 
 declare global {
   namespace Express {
     interface User {
-      _id: string | ObjectId;
+      _id: ObjectId;
       username: string;
       password: string;
+    }
+    interface Request {
+      user?: User;
     }
   }
 }
 
 export {};
-
-export interface AuthenticatedRequest extends Request {
-  user?:
-    | {
-        _id: string | ObjectId;
-        username: string;
-        password: string;
-      }
-    | undefined;
-}

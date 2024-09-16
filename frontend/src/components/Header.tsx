@@ -9,19 +9,9 @@ export default function Header() {
   if (loading) return;
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch(`/api/users/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        setUser(null);
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/");
   };
 
   return (

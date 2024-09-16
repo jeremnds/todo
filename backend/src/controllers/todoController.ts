@@ -2,20 +2,22 @@ import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import mongoose from "mongoose";
 import Todo from "../models/todoModel";
-import { AuthenticatedRequest } from "../types/passport";
+import { UserType } from "../models/userModel";
 
-export const createTodo = async (req: AuthenticatedRequest, res: Response) => {
+export const createTodo = async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errorMessage = result.array()[0].msg;
     return res.status(400).json({ message: errorMessage });
   }
   const data = matchedData(req);
-  const userId = req.user?._id;
+  const user = req.user as UserType;
+  const userId = user._id;
   const newTodo = new Todo({
     ...data,
     user: userId,
   });
+
   try {
     const savedTodo = await newTodo.save();
     return res.status(201).json(savedTodo);
@@ -26,7 +28,8 @@ export const createTodo = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getTodoList = async (req: Request, res: Response) => {
-  const userId = req.user?._id;
+  const user = req.user as UserType;
+  const userId = user._id;
 
   try {
     const todoList = await Todo.find({ user: userId }).sort({
@@ -40,8 +43,8 @@ export const getTodoList = async (req: Request, res: Response) => {
 };
 
 export const deleteTodo = async (req: Request, res: Response) => {
-  const userId = req.user?._id;
-
+  const user = req.user as UserType;
+  const userId = user._id;
   const todoId = req.params.id;
   if (!mongoose.Types.ObjectId.isValid(todoId)) {
     return res.status(400).json({ message: "Invalid Todo ID" });
@@ -64,26 +67,22 @@ export const updateTodo = async (req: Request, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const userId = req.user?._id;
-
+  const user = req.user as UserType;
+  const userId = user._id;
   const todoId = req.params.id;
-
   if (!mongoose.Types.ObjectId.isValid(todoId)) {
     return res.status(400).json({ message: "Invalid Todo ID" });
   }
   try {
     const { title, completed } = req.body;
-
     const todo = await Todo.findOneAndUpdate(
       { _id: todoId, user: userId },
       { title, completed },
       { new: true }
     );
-
     if (!todo) {
       return res.status(404).json({ message: "Todo not found" });
     }
-
     return res.status(200).json(todo);
   } catch (error) {
     console.error("Error updating todo:", error);

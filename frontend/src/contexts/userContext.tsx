@@ -1,4 +1,5 @@
 import Loader from "@/components/Loader";
+import { jwtDecode } from "jwt-decode";
 import React, { createContext, ReactNode, useEffect, useState } from "react";
 
 type UserType = {
@@ -15,32 +16,33 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
-  const url = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(`/api/users/status`, {
-          method: "GET",
-          credentials: "include",
-        });
+    const token = localStorage.getItem("token");
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        } else {
+    const fetchUser = async () => {
+      if (token) {
+        try {
+          const decodedToken: { id: string; username: string } =
+            jwtDecode(token);
+
+          setUser({
+            id: decodedToken.id,
+            username: decodedToken.username,
+          });
+        } catch (error) {
+          console.error("Invalid token:", error);
           setUser(null);
         }
-      } catch (error) {
-        console.error("Error fetching user:", error);
+      } else {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
+
+      setLoading(false);
     };
 
     fetchUser();
-  }, [url]);
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>

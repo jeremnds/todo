@@ -1,3 +1,4 @@
+import { useUser } from "@/contexts/useUser";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Container from "../components/Container";
@@ -7,19 +8,32 @@ import { TodosType } from "../types/todo.type";
 
 export default function TodoPage() {
   const [todos, setTodos] = useState<TodosType | []>([]);
+  const { user, loading } = useUser();
   const [isLoading, setIsLoading] = useState(false);
+  const url = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/");
+    }
+  }, [loading, user, navigate]);
+
   useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/todos`, {
+        const response = await fetch(`${url}/api/todos`, {
           method: "GET",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
+
         const data = await response.json();
         setTodos(data);
-        navigate("/todos");
       } catch (error) {
         console.error("Error fetching todos:", error);
       } finally {
@@ -27,7 +41,7 @@ export default function TodoPage() {
       }
     };
     fetchTodos();
-  }, [navigate]);
+  }, [url, token]);
 
   const submitHandler = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -43,12 +57,12 @@ export default function TodoPage() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`/api/todos/create`, {
+      const response = await fetch(`${url}/api/todos/create`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ title: text }),
       });
 
@@ -69,12 +83,12 @@ export default function TodoPage() {
 
   const deleteHandler = async (id: string) => {
     try {
-      const response = await fetch(`/api/todos/delete/${id}`, {
+      const response = await fetch(`${url}/api/todos/delete/${id}`, {
         method: "DELETE",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        credentials: "include",
       });
 
       if (!response.ok) {
@@ -90,12 +104,12 @@ export default function TodoPage() {
 
   const completeHandler = async (id: string, currentCompleted: boolean) => {
     try {
-      const response = await fetch(`/api/todos/edit/${id}`, {
+      const response = await fetch(`${url}/api/todos/edit/${id}`, {
         method: "PATCH",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        credentials: "include",
 
         body: JSON.stringify({ completed: !currentCompleted }),
       });

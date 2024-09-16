@@ -1,6 +1,7 @@
 import { useUser } from "@/contexts/useUser";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -28,7 +29,7 @@ type LoginData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [error, setError] = useState("");
-  const { setUser, user } = useUser();
+  const { user, setUser } = useUser();
   const {
     register,
     handleSubmit,
@@ -40,7 +41,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+  const url = import.meta.env.VITE_BACKEND_URL;
   const searchParams = new URLSearchParams(location.search);
   const success = searchParams.get("success");
   useEffect(() => {
@@ -49,12 +50,11 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     try {
-      const response = await fetch("/api/users/login", {
+      const response = await fetch(`${url}/api/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -63,7 +63,15 @@ export default function Login() {
         setError(errorData.message);
       } else {
         const data = await response.json();
-        setUser(data.userData);
+        localStorage.setItem("token", data.token);
+        const decodedToken: { id: string; username: string } = jwtDecode(
+          data.token,
+        );
+
+        setUser({
+          id: decodedToken.id,
+          username: decodedToken.username,
+        });
         reset();
         setError("");
         navigate("/todos");

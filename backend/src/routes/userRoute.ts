@@ -1,15 +1,7 @@
 import { Router } from "express";
 import { checkSchema } from "express-validator";
-import {
-  getStatus,
-  login,
-  logout,
-  register,
-} from "../controllers/userController";
-import {
-  isAuthenticated,
-  isNotAuthenticated,
-} from "../middlewares/authMiddleware";
+import { login, register } from "../controllers/userController";
+import { isNotAuthenticated } from "../middlewares/authMiddleware";
 import { loginSchema, registerSchema } from "../schemas/userSchema";
 
 const router = Router();
@@ -22,9 +14,5 @@ router.post(
 );
 
 router.post("/login", isNotAuthenticated, checkSchema(loginSchema), login);
-
-router.get("/status", getStatus);
-
-router.post("/logout", isAuthenticated, logout);
 
 export default router;

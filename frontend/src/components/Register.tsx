@@ -1,7 +1,7 @@
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@radix-ui/react-label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -38,6 +38,8 @@ const registerSchema = z
 type registerData = z.infer<typeof registerSchema>;
 
 export default function Register() {
+  const url = import.meta.env.VITE_BACKEND_URL;
+
   const [error, setError] = useState("");
   const {
     register,
@@ -47,11 +49,15 @@ export default function Register() {
   } = useForm<registerData>({
     resolver: zodResolver(registerSchema),
   });
-
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  useEffect(() => {
+    if (token) navigate("/todos");
+  }, [token, navigate]);
+
   const onSubmit: SubmitHandler<registerData> = async (data) => {
     try {
-      const response = await fetch(`/api/users/register`, {
+      const response = await fetch(`${url}/api/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

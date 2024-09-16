@@ -1,9 +1,17 @@
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import passport from "passport";
 import User from "../models/userModel";
+import { generateToken } from "../strategies/jwtStrategy";
 import "../strategies/localStrategy";
 import { hashPassword } from "../utils/helpers";
+
+dotenv.config();
+
+const secretKey = process.env.SECRET_KEY;
+
+if (!secretKey) throw new Error("SECRET_KEY is missing!");
 
 export const register = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -40,6 +48,7 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
   }
   passport.authenticate(
     "local",
+    { session: false },
     (
       err: Error | null,
       user: Express.User | false,
@@ -48,39 +57,8 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: info?.message });
 
-      req.logIn(user, (err) => {
-        if (err) return next(err);
-        const userData = {
-          _id: user._id,
-          username: user.username,
-        };
-        res.status(200).json({ message: "Logged in successfully", userData });
-      });
+      const token = generateToken(user);
+      return res.json({ token });
     }
   )(req, res, next);
-};
-
-export const getStatus = (req: Request, res: Response) => {
-  if (req.isAuthenticated()) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ message: "Unauthorized" });
-  }
-};
-
-export const logout = (req: Request, res: Response) => {
-  req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ message: "Failed to log out" });
-    }
-
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Failed to destroy session" });
-      }
-
-      res.clearCookie("connect.sid");
-      return res.status(200).json({ message: "Successfully logged out" });
-    });
-  });
 };

@@ -4,13 +4,13 @@ import { Strategy as LocalStrategy } from "passport-local";
 import User from "../models/userModel";
 import { comparePassword } from "../utils/helpers";
 
-passport.serializeUser((user: Express.User, done) => {
+passport.serializeUser((user: any, done) => {
   done(null, user._id);
 });
 
 passport.deserializeUser(async (id: ObjectId, done) => {
   try {
-    const findUser: Express.User | null = await User.findById(id);
+    const findUser: any = await User.findById(id);
     if (!findUser) throw new Error("User not found");
     done(null, findUser);
   } catch (error) {
@@ -27,9 +27,7 @@ export default passport.use(
           ? { email: identifier }
           : { username: identifier };
 
-        const user: Express.User | null = await User.findOne(query).select(
-          "+password"
-        );
+        const user: any = await User.findOne(query).select("+password");
         if (!user) {
           return done(null, false, { message: "User not found" });
         }

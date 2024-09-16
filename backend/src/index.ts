@@ -1,8 +1,6 @@
-import MongoStore from "connect-mongo";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import session from "express-session";
 import mongoose from "mongoose";
 import passport from "passport";
 import todoRoute from "./routes/todoRoute";
@@ -26,37 +24,13 @@ app.use(express.json());
 
 const corsOptions = {
   origin: frontUrl,
-  credentials: true,
   methods: ["GET", "POST", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
 
-const secretKey = process.env.SECRET_KEY;
-
-if (!secretKey) throw new Error("SECRET_KEY is missing");
-
-app.use(
-  session({
-    secret: secretKey,
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-      maxAge: 60000 * 60 * 2,
-      httpOnly: true,
-      // secure: nodeEnv === "production",
-      // sameSite: nodeEnv === "production" ? "none" : "lax",
-
-      secure: true,
-      sameSite: "none",
-    },
-    store: MongoStore.create({ mongoUrl: mongoUri }),
-  })
-);
-
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/api/todos", todoRoute);
 app.use("/api/users", userRouter);
