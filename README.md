@@ -24,8 +24,8 @@
 
 - **Todo Management**: Create, edit, and delete tasks.
 - **Filtering**: Filter tasks by their status (completed or incomplete).
-- **Authentication**: Register and log in to manage your todos using JWT authentication.
-- **API & Authentication**: The API and authentication are both handled by Express.js.
+- **Authentication**: Secure login and registration using JWT authentication.
+- **API**: The API is fully managed by Express.js.
 - **Responsive Interface**: Application optimized for all screen sizes.
 - **Secure API**: Uses JWT to protect routes.
 
